@@ -87,3 +87,15 @@ func (r *Users) UpdatePasswordHash(ctx context.Context, id uuid.UUID, hash strin
 	}
 	return nil
 }
+
+func (r *Users) MarkEmailVerified(ctx context.Context, id uuid.UUID, at time.Time) error {
+	tag, err := r.s.q(ctx).Exec(ctx, `UPDATE ima_users
+        SET email_verified_at = COALESCE(email_verified_at, $2), updated_at = $2 WHERE id = $1`, id, at)
+	if err != nil {
+		return fmt.Errorf("ima/postgres: mark email verified: %w", err)
+	}
+	if tag.RowsAffected() == 0 {
+		return identity.ErrNotFound
+	}
+	return nil
+}

@@ -68,12 +68,13 @@ func (s *Store) q(ctx context.Context) querier {
 }
 
 // Repository views. Each is a thin, typed facade over the same Store.
-func (s *Store) Users() *Users       { return &Users{s} }
-func (s *Store) Sessions() *Sessions { return &Sessions{s} }
-func (s *Store) Devices() *Devices   { return &Devices{s} }
-func (s *Store) Audit() *Audit       { return &Audit{s} }
+func (s *Store) Users() *Users           { return &Users{s} }
+func (s *Store) Sessions() *Sessions     { return &Sessions{s} }
+func (s *Store) Devices() *Devices       { return &Devices{s} }
+func (s *Store) Audit() *Audit           { return &Audit{s} }
+func (s *Store) Challenges() *Challenges { return &Challenges{s} }
 
 // Repositories returns every repository go-ima needs, for ima.Options.
 func (s *Store) Repositories() ima.Repositories {
-	return ima.Repositories{Tx: s, Users: s.Users(), Sessions: s.Sessions(), Devices: s.Devices(), Audit: s.Audit()}
+	return ima.Repositories{Tx: s, Users: s.Users(), Sessions: s.Sessions(), Devices: s.Devices(), Audit: s.Audit(), Challenges: s.Challenges()}
 }

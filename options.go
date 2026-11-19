@@ -8,6 +8,7 @@ import (
 
 	"github.com/ninepeach/go-ima/audit"
 	"github.com/ninepeach/go-ima/auth"
+	"github.com/ninepeach/go-ima/challenge"
 	"github.com/ninepeach/go-ima/device"
 	"github.com/ninepeach/go-ima/identity"
 	"github.com/ninepeach/go-ima/session"
@@ -25,6 +26,8 @@ type Repositories struct {
 	Sessions session.Repository
 	Devices  device.Repository
 	Audit    audit.Recorder
+	// Challenges stores one-time email verification and password reset tokens.
+	Challenges challenge.Repository
 }
 
 // PasswordHasher is satisfied by *auth.Hasher.
@@ -48,6 +51,11 @@ const (
 	ActionRegister = "register"
 	ActionLogin    = "login"
 	ActionRefresh  = "refresh"
+	// ActionVerifyEmailRequest and ActionPasswordResetRequest throttle issuing
+	// challenges, which sends email; ActionChallengeConsume throttles guessing.
+	ActionVerifyEmailRequest   = "verify_email_request"
+	ActionPasswordResetRequest = "password_reset_request"
+	ActionChallengeConsume     = "challenge_consume"
 )
 
 type Options struct {
@@ -63,10 +71,13 @@ type Options struct {
 	RefreshTTL    time.Duration // idle refresh lifetime, default 30 days
 	SessionMaxAge time.Duration // absolute session lifetime, default 90 days
 	TouchInterval time.Duration // min interval between last-active writes, default 1m
+
+	VerifyEmailTTL   time.Duration // email verification link lifetime, default 24h
+	PasswordResetTTL time.Duration // password reset link lifetime, default 1h
 }
 
 func (o *Options) normalize() error {
-	if o.Tx == nil || o.Users == nil || o.Sessions == nil || o.Devices == nil || o.Audit == nil {
+	if o.Tx == nil || o.Users == nil || o.Sessions == nil || o.Devices == nil || o.Audit == nil || o.Challenges == nil {
 		return errors.New("ima: all repositories are required")
 	}
 	if o.Hasher == nil {
@@ -91,7 +102,10 @@ func (o *Options) normalize() error {
 	def(&o.RefreshTTL, 30*24*time.Hour)
 	def(&o.SessionMaxAge, 90*24*time.Hour)
 	def(&o.TouchInterval, time.Minute)
-	if o.AccessTTL < 0 || o.RefreshTTL < 0 || o.SessionMaxAge < 0 || o.TouchInterval < 0 {
+	def(&o.VerifyEmailTTL, 24*time.Hour)
+	def(&o.PasswordResetTTL, time.Hour)
+	if o.AccessTTL < 0 || o.RefreshTTL < 0 || o.SessionMaxAge < 0 || o.TouchInterval < 0 ||
+		o.VerifyEmailTTL < 0 || o.PasswordResetTTL < 0 {
 		return errors.New("ima: durations must not be negative")
 	}
 	if o.AccessTTL > o.RefreshTTL || o.RefreshTTL > o.SessionMaxAge {

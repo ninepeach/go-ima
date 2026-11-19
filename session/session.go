@@ -18,10 +18,11 @@ var ErrNotFound = errors.New("session: not found")
 
 // Revocation reasons recorded on the session.
 const (
-	ReasonLogout       = "logout"
-	ReasonUserRevoked  = "user_revoked"
-	ReasonOtherRevoked = "signed_out_elsewhere"
-	ReasonReuse        = "refresh_reuse"
+	ReasonLogout        = "logout"
+	ReasonUserRevoked   = "user_revoked"
+	ReasonOtherRevoked  = "signed_out_elsewhere"
+	ReasonReuse         = "refresh_reuse"
+	ReasonPasswordReset = "password_reset"
 )
 
 type Session struct {

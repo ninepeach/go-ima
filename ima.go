@@ -3,8 +3,9 @@
 // embedded Go library and the ima-server HTTP transport.
 //
 // V1.0 scope: password accounts, opaque access/refresh tokens with rotation
-// and replay detection, devices, session listing and revocation, audit events.
-// Email verification, password reset, MFA, RBAC and tenants are later versions.
+// and replay detection, devices, session listing and revocation, audit events,
+// email verification and password reset challenges (challenges.go).
+// MFA, RBAC and tenants are later versions.
 package ima
 
 import (

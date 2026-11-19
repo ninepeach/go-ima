@@ -12,6 +12,9 @@ var (
 	ErrUnauthenticated = errors.New("ima: unauthenticated")
 	ErrRateLimited     = errors.New("ima: rate limited")
 	ErrNotFound        = errors.New("ima: not found")
+	// ErrInvalidToken covers unknown, expired, superseded or already used
+	// email verification and password reset tokens alike.
+	ErrInvalidToken = errors.New("ima: invalid or expired token")
 	// ErrEmailUnavailable is returned to the embedding host only. Public
 	// transports must answer registration identically whether or not it occurred.
 	ErrEmailUnavailable = errors.New("ima: email unavailable")

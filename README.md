@@ -18,8 +18,12 @@ Implemented and tested against PostgreSQL:
 - Audit events committed in the same transaction as the use case; no secrets in events.
 - Trusted-proxy aware client IP resolution in the HTTP transport.
 - Explicit, versioned, forward-only migrations with an advisory lock and a startup schema check.
+- Email verification and password reset as one-time challenges (Go library API only): `RequestEmailVerification`,
+  `VerifyEmail`, `RequestPasswordReset`, `ResetPassword`. Tokens are stored as SHA-256 digests, expire (24h / 1h),
+  are consumed at most once, and a new challenge supersedes earlier ones. A reset revokes every session.
+  go-ima does not send mail: the host delivers `Issued.Token` and must hide `ErrNotFound` from public responses.
 
-Not yet implemented (later versions): email verification and password reset (needs `go-base/mailer`), a production rate limiter (`ima.Limiter` is a hook; nil means unthrottled), account deletion and data retention, MFA, trusted-device approval, risk scoring, RBAC, tenants, admin API, JWT access tokens.
+Not yet implemented (later versions): REST endpoints for verification and reset in `ima-server`, a production rate limiter (`ima.Limiter` is a hook; nil means unthrottled), account deletion and data retention, MFA, trusted-device approval, risk scoring, RBAC, tenants, admin API, JWT access tokens.
 
 ## Layout
 

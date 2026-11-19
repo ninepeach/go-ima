@@ -19,4 +19,7 @@ type Repository interface {
 	ByID(ctx context.Context, id uuid.UUID) (User, error)
 	// UpdatePasswordHash replaces the stored hash, e.g. to upgrade parameters.
 	UpdatePasswordHash(ctx context.Context, id uuid.UUID, hash string, at time.Time) error
+	// MarkEmailVerified sets EmailVerifiedAt when it is unset; repeating it is a no-op.
+	// It returns ErrNotFound for an unknown user.
+	MarkEmailVerified(ctx context.Context, id uuid.UUID, at time.Time) error
 }

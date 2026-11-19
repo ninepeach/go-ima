@@ -85,6 +85,19 @@ CREATE TABLE ima_audit_events (
 );
 CREATE INDEX ima_audit_events_user_idx ON ima_audit_events (user_id, occurred_at);
 `,
+	// 2: one-time email verification and password reset challenges.
+	`
+CREATE TABLE ima_challenges (
+    id          uuid PRIMARY KEY,
+    user_id     uuid NOT NULL REFERENCES ima_users (id) ON DELETE CASCADE,
+    purpose     text NOT NULL CHECK (purpose IN ('verify_email', 'password_reset')),
+    token_hash  bytea NOT NULL UNIQUE,
+    created_at  timestamptz NOT NULL,
+    expires_at  timestamptz NOT NULL,
+    consumed_at timestamptz
+);
+CREATE INDEX ima_challenges_open_idx ON ima_challenges (user_id, purpose) WHERE consumed_at IS NULL;
+`,
 }
 
 // SchemaVersion is the schema version this code requires.

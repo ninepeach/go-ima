@@ -14,6 +14,9 @@ const (
 	KindAccess  = "ima_at_"
 	KindRefresh = "ima_rt_"
 	KindDevice  = "ima_dt_"
+	// One-time challenge tokens delivered out of band (email links).
+	KindVerifyEmail   = "ima_ve_"
+	KindPasswordReset = "ima_pr_"
 )
 
 var ErrMalformedToken = errors.New("session: malformed token")

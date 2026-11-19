@@ -20,6 +20,10 @@ const (
 	RefreshReuseBlocked Type = "token.refresh_reuse"
 	SessionRevoked      Type = "session.revoked"
 	DeviceRegistered    Type = "device.registered"
+	EmailVerifyIssued   Type = "email.verification_issued"
+	EmailVerified       Type = "email.verified"
+	PasswordResetIssued Type = "password.reset_issued"
+	PasswordReset       Type = "password.reset"
 )
 
 type Event struct {
