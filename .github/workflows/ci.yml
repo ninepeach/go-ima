@@ -1,0 +1,49 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U test" --health-interval 2s --health-timeout 5s --health-retries 20
+    env:
+      IMA_TEST_DSN: postgres://test:test@localhost:5432/test?sslmode=disable
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: go-ima
+      # go-base is not yet published as tagged modules, so CI builds against
+      # its main branch through a workspace. GO_BASE_TOKEN needs read access
+      # while go-base is private.
+      - uses: actions/checkout@v4
+        with:
+          repository: ninepeach/go-base
+          path: go-base
+          token: ${{ secrets.GO_BASE_TOKEN }}
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.1'
+          cache-dependency-path: go-ima/go.sum
+      - name: Workspace
+        working-directory: go-ima
+        run: |
+          go work init . ../go-base/core ../go-base/postgres
+      - name: Format check
+        working-directory: go-ima
+        run: test -z "$(gofmt -l .)"
+      - name: Vet
+        working-directory: go-ima
+        run: go vet ./...
+      - name: Tests
+        working-directory: go-ima
+        run: go test -race -count=1 ./...
